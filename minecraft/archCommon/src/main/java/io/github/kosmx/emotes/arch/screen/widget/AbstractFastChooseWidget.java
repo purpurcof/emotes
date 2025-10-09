@@ -1,8 +1,7 @@
 package io.github.kosmx.emotes.arch.screen.widget;
 
 import io.github.kosmx.emotes.PlatformTools;
-import io.github.kosmx.emotes.arch.screen.utils.TransparentButton;
-import io.github.kosmx.emotes.mc.McUtils;
+import io.github.kosmx.emotes.arch.screen.utils.PageButton;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.Font;
@@ -12,6 +11,8 @@ import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.ContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.gui.screens.recipebook.RecipeBookPage;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
@@ -28,10 +29,10 @@ public abstract class AbstractFastChooseWidget extends AbstractWidget implements
     private GuiEventListener focused;
     private boolean isDragging;
 
-    protected final TransparentButton forwardButton = new TransparentButton(15, 15, McUtils.FORWARD, this::onForwardButton);
-    protected final TransparentButton backButton = new TransparentButton(15, 15, McUtils.BACK, this::onBackButton);
+    protected final PageButton forwardButton = new PageButton(RecipeBookPage.PAGE_FORWARD_SPRITES, false, this::onForwardButton);
+    protected final PageButton backButton = new PageButton(RecipeBookPage.PAGE_BACKWARD_SPRITES, false, this::onBackButton);
 
-    private int currentPage;
+    private static int currentPage;
 
     protected AbstractFastChooseWidget(FastChooseController controller, int x, int y, int size, Component message) {
         super(x, y, size, size, message);
@@ -46,13 +47,15 @@ public abstract class AbstractFastChooseWidget extends AbstractWidget implements
         int centerX = getX() + getWidth() / 2;
         int centerY = getY() + getHeight() / 2;
 
-        this.forwardButton.setPosition((centerX - this.forwardButton.getWidth() / 2) + globalPadding(), centerY - this.forwardButton.getHeight() / 2);
-        this.backButton.setPosition((centerX - this.forwardButton.getWidth() / 2) - globalPadding(), centerY - this.forwardButton.getHeight() / 2);
-
-        Component text = Component.literal(String.valueOf(this.currentPage + 1));
+        Component text = Component.literal(String.valueOf(getCurrentPage() + 1));
         Font font = Minecraft.getInstance().font;
         int textWidth = font.width(text);
-        guiGraphics.drawString(font, text, centerX - (textWidth / 2), centerY - (font.lineHeight / 3), -1);
+
+        int buttonPadding = Math.max((PageButton.PAGE_BUTTON_WIDTH + textWidth) / 2 + 2, globalPadding());
+        this.forwardButton.setPosition(centerX - this.forwardButton.getWidth() / 2 + buttonPadding, centerY - this.forwardButton.getHeight() / 2);
+        this.backButton.setPosition(centerX - this.backButton.getWidth() / 2 - buttonPadding, centerY - this.backButton.getHeight() / 2);
+
+        guiGraphics.drawString(font, text, centerX - (textWidth / 2), centerY - (font.lineHeight / 2), -1);
 
         for (Renderable renderable : this.elements) {
             renderable.render(guiGraphics, mouseX, mouseY, partialTick);
@@ -60,7 +63,7 @@ public abstract class AbstractFastChooseWidget extends AbstractWidget implements
     }
 
     public int globalPadding() {
-        return getWidth() / 8;
+        return Math.min(getWidth() / 8, getHeight() / 8);
     }
 
     public abstract void tick();
@@ -99,7 +102,11 @@ public abstract class AbstractFastChooseWidget extends AbstractWidget implements
     }
 
     public int getCurrentPage() {
-        return this.currentPage;
+        return AbstractFastChooseWidget.currentPage;
+    }
+
+    public void setSize(int size) {
+        setSize(size, size);
     }
 
     @Override
@@ -108,24 +115,24 @@ public abstract class AbstractFastChooseWidget extends AbstractWidget implements
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        super.mouseClicked(mouseX, mouseY, button);
-        return ContainerEventHandler.super.mouseClicked(mouseX, mouseY, button);
+    public boolean mouseClicked(MouseButtonEvent event, boolean bl) {
+        super.mouseClicked(event, bl);
+        return ContainerEventHandler.super.mouseClicked(event, bl);
     }
 
-    protected void onForwardButton(TransparentButton button) {
-        if (this.currentPage < PlatformTools.getConfig().fastMenuEmotes.length - 1) {
-            this.currentPage += 1;
+    protected void onForwardButton(PageButton button) {
+        if (AbstractFastChooseWidget.currentPage < PlatformTools.getConfig().fastMenuEmotes.length - 1) {
+            currentPage += 1;
         } else {
-            this.currentPage = 0;
+            currentPage = 0;
         }
     }
 
-    protected void onBackButton(TransparentButton button) {
-        if (this.currentPage > 0) {
-            this.currentPage -= 1;
+    protected void onBackButton(PageButton button) {
+        if (AbstractFastChooseWidget.currentPage > 0) {
+            currentPage -= 1;
         } else {
-            this.currentPage = PlatformTools.getConfig().fastMenuEmotes.length - 1;
+            currentPage = PlatformTools.getConfig().fastMenuEmotes.length - 1;
         }
     }
 
@@ -158,15 +165,15 @@ public abstract class AbstractFastChooseWidget extends AbstractWidget implements
     }
 
     @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        super.mouseReleased(mouseX, mouseY, button);
-        return ContainerEventHandler.super.mouseReleased(mouseX, mouseY, button);
+    public boolean mouseReleased(MouseButtonEvent event) {
+        super.mouseReleased(event);
+        return ContainerEventHandler.super.mouseReleased(event);
     }
 
     @Override
-    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
-        super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
-        return ContainerEventHandler.super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+    public boolean mouseDragged(MouseButtonEvent event, double d, double e) {
+        super.mouseDragged(event, d, e);
+        return ContainerEventHandler.super.mouseDragged(event, d, e);
     }
 
     @Override

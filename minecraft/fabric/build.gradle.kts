@@ -35,6 +35,7 @@ dependencies {
     modImplementation(fabricApi.module("fabric-networking-api-v1", project["fabric_api_version"]))
     modImplementation(fabricApi.module("fabric-key-binding-api-v1", project["fabric_api_version"]))
     modImplementation(fabricApi.module("fabric-lifecycle-events-v1", project["fabric_api_version"]))
+    modImplementation(fabricApi.module("fabric-rendering-v1", project["fabric_api_version"]))
 
     commonModule(project(":emotesAPI")) { isTransitive = false }
     commonModule(project(":emotesServer")) { isTransitive = false }
@@ -42,6 +43,7 @@ dependencies {
     commonModule(project(path = ":emotesMc", configuration = "namedElements")) { isTransitive = false }
 
     modRuntimeOnly(fabricApi.module("fabric-screen-api-v1", project["fabric_api_version"]))
+    modRuntimeOnly(fabricApi.module("fabric-resource-loader-v0", project["fabric_api_version"]))
     modImplementation("com.terraformersmc:modmenu:${project["modmenu_version"]}") {
         exclude(group = "net.fabricmc.fabric-api")
     }
@@ -54,10 +56,10 @@ dependencies {
         pomCompile(this)
     }
 
-    modRuntimeOnly("com.zigythebird.bendable_cuboids:BendableCuboidsFabric:${project["bendablecuboids_version"]}") {
+    /*modRuntimeOnly("com.zigythebird.bendable_cuboids:BendableCuboidsFabric:${project["bendablecuboids_version"]}") {
         isTransitive = false
         pomCompile(this)
-    }
+    }*/
 
     implementation("net.raphimc:NoteBlockLib:${project["noteblocklib_version"]}") {
         include(this)

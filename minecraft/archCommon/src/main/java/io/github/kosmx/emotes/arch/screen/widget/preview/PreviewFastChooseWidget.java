@@ -14,7 +14,7 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.layouts.LayoutElement;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.resources.ResourceLocation;
 
 public class PreviewFastChooseWidget extends AbstractFastChooseWidget {
@@ -27,7 +27,7 @@ public class PreviewFastChooseWidget extends AbstractFastChooseWidget {
     private float animTime = 1.0F;
 
     public PreviewFastChooseWidget(FastChooseController controller, boolean animated, int x, int y, int size) {
-        super(controller, x, y, size, Component.empty());
+        super(controller, x, y, size, CommonComponents.EMPTY);
         this.animated = animated;
 
         GameProfile profile = Minecraft.getInstance().getGameProfile();

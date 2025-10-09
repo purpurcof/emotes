@@ -10,8 +10,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.layouts.HeaderAndFooterLayout;
+import net.minecraft.client.gui.layouts.LayoutSettings;
 import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.input.MouseButtonInfo;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 
@@ -34,14 +38,17 @@ public class FastMenuScreen extends Screen implements FastChooseController {
     @Override
     public void init() {
         if (ClientPacketManager.isRemoteAvailable()) {
-            //this.layout.addTitleHeader(getTitle(), this.font); TODO Do we want this?
+            // this.layout.addTitleHeader(getTitle(), this.font); TODO Do we want this?
+            this.layout.setHeaderHeight(0);
         } else if (ClientPacketManager.isAvailableProxy()) {
             this.layout.addTitleHeader(FastMenuScreen.WARN_ONLY_PROXY, this.font);
         } else {
             this.layout.addTitleHeader(FastMenuScreen.WARN_NO_EMOTECRAFT, this.font);
         }
 
-        this.fastMenu = this.layout.addToContents(new PreviewFastChooseWidget(this, true, 0, 0, 0));
+        this.fastMenu = this.layout.addToContents(new PreviewFastChooseWidget(this, true, 0, 0, 512),
+                LayoutSettings::alignVerticallyMiddle
+        );
 
         LinearLayout linearLayout = this.layout.addToFooter(LinearLayout.horizontal().spacing(Button.DEFAULT_SPACING));
         linearLayout.addChild(Button.builder(CommonComponents.GUI_CANCEL, button -> onClose())
@@ -60,8 +67,7 @@ public class FastMenuScreen extends Screen implements FastChooseController {
     @Override
     protected void repositionElements() {
         if (this.fastMenu != null) {
-            int size = (int) Math.min(this.width * 0.8, this.height * 0.8);
-            this.fastMenu.setSize(size, size);
+            this.fastMenu.setSize(Math.min(Math.round(Math.min(this.width * 0.8F, (this.height - this.layout.getHeaderHeight()) * 0.8F)), 512));
         }
         this.layout.arrangeElements();
     }
@@ -78,11 +84,11 @@ public class FastMenuScreen extends Screen implements FastChooseController {
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (super.keyPressed(keyCode, scanCode, modifiers)) {
+    public boolean keyPressed(KeyEvent keyEvent) {
+        if (super.keyPressed(keyEvent)) {
             return true;
         }
-        if (EmotecraftClientMod.OPEN_MENU_KEY.matches(keyCode, scanCode)) {
+        if (EmotecraftClientMod.OPEN_MENU_KEY.matches(keyEvent)) {
             onClose();
             return true;
         }
@@ -90,11 +96,11 @@ public class FastMenuScreen extends Screen implements FastChooseController {
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (super.mouseClicked(mouseX, mouseY, button)) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean bl) {
+        if (super.mouseClicked(event, bl)) {
             return true;
         }
-        if (EmotecraftClientMod.OPEN_MENU_KEY.matchesMouse(button)) {
+        if (EmotecraftClientMod.OPEN_MENU_KEY.matchesMouse(event)) {
             onClose();
             return true;
         }
@@ -125,12 +131,12 @@ public class FastMenuScreen extends Screen implements FastChooseController {
     }
 
     @Override
-    public boolean isValidClickButton(int button) {
-        return button == 0;
+    public boolean isValidClickButton(MouseButtonInfo info) {
+        return info.button() == 0;
     }
 
     @Override
-    public boolean onClick(IChooseElement element, int button) {
+    public boolean onClick(IChooseElement element, MouseButtonEvent event, boolean unused) {
         if(element.getEmote() != null){
             boolean bl = element.getEmote().playEmote();
             if (bl) Minecraft.getInstance().setScreen(null);
