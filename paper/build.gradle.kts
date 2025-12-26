@@ -7,7 +7,7 @@ plugins {
     `maven-publish`
     id("com.gradleup.shadow")
     id("me.modmuss50.mod-publish-plugin")
-    id("io.papermc.hangar-publish-plugin") version "0.1.3"
+    id("io.papermc.hangar-publish-plugin") version "0.1.4"
 }
 
 base.archivesName = "${archives_base_name}-${name}-for-MC${minecraft_version}"
@@ -19,20 +19,8 @@ configurations.api.configure { extendsFrom(compileApi) }
 dependencies {
     paperweight.paperDevBundle("${minecraft_version}-R0.1-SNAPSHOT")
 
-    compileApi(project(":emotesServer")) {
-        exclude(group = "org.jetbrains", module = "annotations")
-
-        exclude(module = "gson")
-        exclude(module = "slf4j-api")
-        exclude(module = "fastutil")
-        exclude(module = "netty-buffer")
-        exclude(module = "jspecify")
-        exclude(module = "guava")
-        exclude(module = "error_prone_annotations")
-        exclude(module = "netty-buffer")
-    }
     compileApi(project(":emotesAssets"))
-    compileApi(project(path = ":emotesMc", configuration = "namedElements")) { isTransitive = false }
+    compileApi(project(path = ":emotesMc", configuration = "namedElements"))
 }
 
 tasks.runServer {
@@ -116,7 +104,7 @@ publishMods {
     }
 }
 
-tasks.getByName("publishMods").dependsOn("publishPluginPublicationToHangar")
+/*tasks.getByName("publishMods").dependsOn("publishPluginPublicationToHangar")
 
 hangarPublish.publications.register("plugin") {
     version = "${mod_version}+${minecraft_version}-paper"
@@ -132,5 +120,4 @@ hangarPublish.publications.register("plugin") {
         jar = tasks.shadowJar.flatMap { it.archiveFile }
         platformVersions = release_minecraft_versions
     }
-}
-
+}*/
